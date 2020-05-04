@@ -1,13 +1,12 @@
 package login;
 
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.html5.WebStorage;
@@ -18,21 +17,25 @@ import java.util.concurrent.TimeUnit;
 public class Steps {
   WebDriver dr;
   final String driverPath = "P:\\prog\\selenium\\chromedriver.exe";
-
-  @Before
-  public void setUp() {
-    System.setProperty("webdriver.chrome.driver", driverPath);
-    dr = new ChromeDriver();
-  }
-
-  @After
-  public void cleanUp() {
-    if (dr != null) dr.close();
-  }
+  long lastHttpResponse = 0;
 
   @Given("navigate to start page")
   public void navigate_to_Gmail_page() {
+    System.setProperty("webdriver.chrome.driver", driverPath);
+    dr = new ChromeDriver();
     dr.get("http://localhost:7000");
+  }
+
+  @Given("navigate to google")
+  public void navigate_to_Google() {
+    System.setProperty("webdriver.chrome.driver", driverPath);
+    dr = new ChromeDriver();
+    dr.get("http://www.google.com");
+  }
+
+  @And("close browser")
+  public void closeBrowser() {
+    if (dr != null) dr.close();
   }
 
   @When("^user logged in using username as \"(.*)\" and password as \"(.*)\"$")
@@ -60,5 +63,23 @@ public class Steps {
   @Then("refresh page")
   public void refreshTab() {
     dr.navigate().refresh();
+  }
+
+  @When("posting delete account")
+  public void postingDeleteAccount() {
+    JavascriptExecutor js = (JavascriptExecutor) dr;
+//    dr.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+    var resp = js.executeAsyncScript(
+        "var callback = arguments[arguments.length - 1];" +
+        "fetch('http://localhost:7000/delete-account', { method: 'POST'})" +
+        ".then(response => callback(response.status));"
+    );
+
+    lastHttpResponse = (long) resp;
+  }
+
+  @Then("http response should be 403")
+  public void response403Forbidden() {
+    Assert.assertEquals(403, lastHttpResponse);
   }
 }

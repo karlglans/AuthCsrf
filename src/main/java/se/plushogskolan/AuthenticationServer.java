@@ -2,11 +2,16 @@ package se.plushogskolan;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.HttpResponseException;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthenticationServer {
+    static final Map noExtraParams = new HashMap<String, String>();
+
     public static void main(String[] args) {
         Javalin app = Javalin.create(config -> {
             config.enableDevLogging();
@@ -31,7 +36,6 @@ public class AuthenticationServer {
         });
 
         app.post("/login", context -> login(context));
-        app.after("/login", AuthenticationServer::doCsrfChecks);
 
         // If the user decides to delete their account, show a confirmation page first.
         app.get("/delete-account", context -> {
@@ -49,7 +53,10 @@ public class AuthenticationServer {
             String html = template("Account Deleted", content);
             context.result(html);
         });
-        app.after("/delete-account", AuthenticationServer::doCsrfChecks);
+
+        // Added filter for csrf-checks for mutating actions
+        app.before("/delete-account", AuthenticationServer::doCsrfChecks);
+        app.before("/login", AuthenticationServer::doCsrfChecks);
     }
 
     // TODO: maybe a better name
@@ -60,14 +67,18 @@ public class AuthenticationServer {
     }
 
     private static void doCsrfChecks(Context context) {
-        // ignoring checks for GET calls
+        // ignoring checks for GET calls since those should not mutate anything
         if (context.req.getMethod().compareTo("GET") == 0) {
             return;
         }
         if (context.sessionAttribute("csrf") == null) {
-            context.status(401);
+            throw new HttpResponseException(401, "No session", noExtraParams);
         } else {
             String providedCsrf = context.formParam("csrf");
+            if (providedCsrf == null) {
+//                context.status(403);
+                throw new HttpResponseException(403, "Missing CSRF token in form", noExtraParams);
+            }
             var sessionCsrf = context.sessionAttribute("csrf");
             if (providedCsrf == null || context.sessionAttribute("csrf").toString().compareTo(providedCsrf) != 0) {
 //                context.status(403);
