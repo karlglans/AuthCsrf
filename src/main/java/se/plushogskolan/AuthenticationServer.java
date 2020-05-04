@@ -31,7 +31,18 @@ public class AuthenticationServer {
             // If there is no "username" attribute in the session, that means the user is still not logged in, so
             // show them the login form.
             if (context.sessionAttribute("username") == null) {
-                loginPage(context);
+                String providedStayLoggedInCookie = context.cookie("stay");
+                String usernameFromCookie = null;
+                if (providedStayLoggedInCookie != null) {
+                    usernameFromCookie = userService.extractUserFromCookie(providedStayLoggedInCookie);
+                }
+                if (usernameFromCookie != null) {
+                    // this means user is now logged in
+                    context.sessionAttribute("username", usernameFromCookie);
+                    welcomePage(context);
+                } else {
+                    loginPage(context);
+                }
             }
             // Otherwise, they are logged in and should see the welcome page.
             else {
@@ -132,7 +143,12 @@ public class AuthenticationServer {
         // Get the username and password from the submitted form.
         String providedUsername = context.formParam("username");
         String providedPassword = context.formParam("password");
-        String providedStayLoggedIn = context.formParam("stay");
+        String providedStayLoggedIn = context.formParam("stay"); // is present only if checked
+        String providedStayLoggedInCookie = context.cookie("stay");
+
+        if (providedStayLoggedInCookie != null) {
+            var aaa = 11;
+        }
 
         // If the username and password are correct, log the user in.
         if (userService.checkCredentials(providedUsername, providedPassword)) {

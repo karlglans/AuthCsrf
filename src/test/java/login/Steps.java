@@ -6,6 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -67,6 +68,13 @@ public class Steps {
     Assert.assertNull(stay);
   }
 
+  @And("adding valid logged in token")
+  public void addingValidLogedInToken() {
+    String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJCcmFkIiwiaXNzIjoicGx1c3Nob2dza29sYW4iLCJleHAiOjE1ODg2NTkyMjB9.wbm7WA41LQZmrOYX80dQH9TXqeWtvMqz-IIC3ssTv00";
+    Cookie stayCookie = new Cookie("stay", token);
+    dr.manage().addCookie(stayCookie);
+  }
+
   @Then("^user should see title \"(.*)\" on page")
   public void verifyTitle(String expectedPageTitle){
     String actualTitle = dr.getTitle();
@@ -81,7 +89,7 @@ public class Steps {
     Assert.assertTrue(csrf.length() > 5);
   }
 
-  @Then("refresh page")
+  @When("refresh page")
   public void refreshTab() {
     dr.navigate().refresh();
   }

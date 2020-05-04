@@ -18,13 +18,21 @@ Feature: Authentication
     Given navigate to start page
     When user logged in using username as "Brad" and password as "secret123"
     Then user should see title "Welcome!" on page
-    Then refresh page
+    When refresh page
     Then user should see title "Welcome!" on page
     And close browser
 
-  Scenario: Login and put stay logged in
+  Scenario: Login and put stay-logged-in
     Given navigate to start page
     When user logged in as "Brad" and password as "secret123" and clicking stay
+    Then user should see title "Welcome!" on page
+    And cookie stay should be present
+    And close browser
+
+  Scenario: Login from stay-logged-in-cookie
+    Given navigate to start page
+    And adding valid logged in token
+    When refresh page
     Then user should see title "Welcome!" on page
     And cookie stay should be present
     And close browser

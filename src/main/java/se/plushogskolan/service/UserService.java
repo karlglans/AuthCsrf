@@ -30,6 +30,10 @@ public class UserService {
     }
   }
 
+  public String extractUserFromCookie(String stayLoggedInCookie) {
+    return jwtHelper.getUsernameFromToken(stayLoggedInCookie);
+  }
+
   public String makeLoggedInToken(String username) {
     return jwtHelper.makeToken(username);
   }
