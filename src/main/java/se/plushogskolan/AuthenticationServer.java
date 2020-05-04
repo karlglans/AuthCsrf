@@ -3,6 +3,7 @@ package se.plushogskolan;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpResponseException;
+import se.plushogskolan.service.UserService;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 public class AuthenticationServer {
     static final Map noExtraParams = new HashMap<String, String>();
+    static UserService userService = new UserService();
 
     public static void main(String[] args) {
         Javalin app = Javalin.create(config -> {
@@ -129,7 +131,7 @@ public class AuthenticationServer {
         String providedPassword = context.formParam("password");
 
         // If the username and password are correct, log the user in.
-        if (providedUsername.equals("Brad") && providedPassword.equals("secret123")) {
+        if (userService.checkCredentials(providedUsername, providedPassword)) {
             // Save the username in the session, so we know who is logged in.
             context.sessionAttribute("username", providedUsername);
 
