@@ -6,6 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -46,6 +47,34 @@ public class Steps {
     dr.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
   }
 
+  @When("^user logged in as \"(.*)\" and password as \"(.*)\" and clicking stay$")
+  public void loginAndClickStay(String username, String password) {
+    dr.findElement(By.xpath("//input[@name='username']")).sendKeys(username);
+    dr.findElement(By.xpath("//input[@name='password']")).sendKeys(password);
+    dr.findElement(By.xpath("//input[@name='stay']")).click();
+    dr.findElement(By.xpath("//*[@id='signIn']")).click();
+    dr.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+  }
+
+  @And("cookie stay should be present")
+  public void verifyTokenStayIsPresent() {
+    var stay = dr.manage().getCookieNamed("stay");
+    Assert.assertNotNull(stay);
+  }
+
+  @And("cookie stay should not be present")
+  public void verifyTokenStayIsNotPresent() {
+    var stay = dr.manage().getCookieNamed("stay");
+    Assert.assertNull(stay);
+  }
+
+  @And("adding valid logged in token")
+  public void addingValidLogedInToken() {
+    String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJCcmFkIiwiaXNzIjoicGx1c3Nob2dza29sYW4iLCJleHAiOjE1ODg2NTkyMjB9.wbm7WA41LQZmrOYX80dQH9TXqeWtvMqz-IIC3ssTv00";
+    Cookie stayCookie = new Cookie("stay", token);
+    dr.manage().addCookie(stayCookie);
+  }
+
   @Then("^user should see title \"(.*)\" on page")
   public void verifyTitle(String expectedPageTitle){
     String actualTitle = dr.getTitle();
@@ -60,7 +89,7 @@ public class Steps {
     Assert.assertTrue(csrf.length() > 5);
   }
 
-  @Then("refresh page")
+  @When("refresh page")
   public void refreshTab() {
     dr.navigate().refresh();
   }
