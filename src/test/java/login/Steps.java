@@ -46,6 +46,27 @@ public class Steps {
     dr.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
   }
 
+  @When("^user logged in as \"(.*)\" and password as \"(.*)\" and clicking stay$")
+  public void loginAndClickStay(String username, String password) {
+    dr.findElement(By.xpath("//input[@name='username']")).sendKeys(username);
+    dr.findElement(By.xpath("//input[@name='password']")).sendKeys(password);
+    dr.findElement(By.xpath("//input[@name='stay']")).click();
+    dr.findElement(By.xpath("//*[@id='signIn']")).click();
+    dr.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+  }
+
+  @And("cookie stay should be present")
+  public void verifyTokenStayIsPresent() {
+    var stay = dr.manage().getCookieNamed("stay");
+    Assert.assertNotNull(stay);
+  }
+
+  @And("cookie stay should not be present")
+  public void verifyTokenStayIsNotPresent() {
+    var stay = dr.manage().getCookieNamed("stay");
+    Assert.assertNull(stay);
+  }
+
   @Then("^user should see title \"(.*)\" on page")
   public void verifyTitle(String expectedPageTitle){
     String actualTitle = dr.getTitle();

@@ -5,6 +5,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpResponseException;
 import se.plushogskolan.service.UserService;
 
+import javax.servlet.http.Cookie;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
@@ -12,9 +13,10 @@ import java.util.Map;
 
 public class AuthenticationServer {
     static final Map noExtraParams = new HashMap<String, String>();
-    static UserService userService = new UserService();
+    static final UserService userService = new UserService();
 
     public static void main(String[] args) {
+        userService.init();
         Javalin app = Javalin.create(config -> {
             config.enableDevLogging();
         }).start("localhost", 7000);
@@ -118,7 +120,8 @@ public class AuthenticationServer {
             "<form method='post' action='/login'>" +
                 "<label>Username: <input type='text' name='username'></label>" +
                 "<label>Password: <input type='password' name='password'></label>" +
-                "<label>Username: <input type='hidden' name='csrf' value='" + context.sessionAttribute("csrf") + "'></label>" +
+                "<input type='hidden' name='csrf' value='" + context.sessionAttribute("csrf") + "'>" +
+                "<label><input type='checkbox' name='stay' value='stay'>Stay logged in</label>" +
                 "<button type='submit' id='signIn'>Log In</button>" +
             "</form>";
         String html = template("Login", content);
@@ -129,11 +132,17 @@ public class AuthenticationServer {
         // Get the username and password from the submitted form.
         String providedUsername = context.formParam("username");
         String providedPassword = context.formParam("password");
+        String providedStayLoggedIn = context.formParam("stay");
 
         // If the username and password are correct, log the user in.
         if (userService.checkCredentials(providedUsername, providedPassword)) {
             // Save the username in the session, so we know who is logged in.
             context.sessionAttribute("username", providedUsername);
+
+            if (providedStayLoggedIn != null) {
+                Cookie stayCookie = new Cookie("stay", userService.makeLoggedInToken(providedUsername));
+                context.res.addCookie(stayCookie);
+            }
 
             // Show the welcome page.
             context.redirect("/");

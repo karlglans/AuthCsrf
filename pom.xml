@@ -26,20 +26,20 @@
             <version>1.14</version>
         </dependency>
         <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-java</artifactId>
-            <version>5.6.0</version>
-            <scope>test</scope>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.4.1</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>io.cucumber</groupId>-->
-            <!--<artifactId>cucumber-java8</artifactId>-->
-            <!--<version>5.6.0</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
+        <!--Testing-->
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
+            <version>5.6.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
             <version>5.6.0</version>
             <scope>test</scope>
         </dependency>
@@ -49,7 +49,6 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
