@@ -1,5 +1,7 @@
 package login;
 
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -12,12 +14,16 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.html5.WebStorage;
 import org.openqa.selenium.remote.Augmenter;
+import se.plushogskolan.AuthenticationServer;
+import se.plushogskolan.service.JwtHelper;
 
 import java.util.concurrent.TimeUnit;
 
 public class Steps {
   WebDriver dr;
-  final String driverPath = "P:\\prog\\selenium\\chromedriver.exe";
+  // chrome driver should be a manually added path to a Webdriver for chrome.
+  // https://chromedriver.chromium.org/downloads
+  final String driverPath = System.getenv("CHROME_DRIVER");
   long lastHttpResponse = 0;
 
   @Given("navigate to start page")
@@ -32,6 +38,17 @@ public class Steps {
     System.setProperty("webdriver.chrome.driver", driverPath);
     dr = new ChromeDriver();
     dr.get("http://www.google.com");
+  }
+
+  @Before()
+  public void startApp() {
+    String[] args = {};
+    AuthenticationServer.main(args);
+  }
+
+  @After()
+  public void closeApp() {
+    AuthenticationServer.shoutDown();
   }
 
   @And("close browser")
@@ -70,7 +87,8 @@ public class Steps {
 
   @And("adding valid logged in token")
   public void addingValidLogedInToken() {
-    String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJCcmFkIiwiaXNzIjoicGx1c3Nob2dza29sYW4iLCJleHAiOjE1ODg2NTkyMjB9.wbm7WA41LQZmrOYX80dQH9TXqeWtvMqz-IIC3ssTv00";
+    JwtHelper jwtHelper = new JwtHelper("aaa", "plusshogskolan");
+    String token = jwtHelper.makeToken("Brad");
     Cookie stayCookie = new Cookie("stay", token);
     dr.manage().addCookie(stayCookie);
   }

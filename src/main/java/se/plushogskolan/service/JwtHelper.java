@@ -21,7 +21,7 @@ public class JwtHelper {
   private Algorithm algorithm;
   private JWTVerifier verifier;
 
-  JwtHelper(String secret, String issuer) {
+  public JwtHelper(String secret, String issuer) {
     this.issuer = issuer;
     this.algorithm = Algorithm.HMAC256(secret);
     this.verifier = JWT.require(algorithm)
