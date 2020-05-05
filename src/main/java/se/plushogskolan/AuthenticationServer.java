@@ -14,10 +14,11 @@ import java.util.Map;
 public class AuthenticationServer {
     static final Map noExtraParams = new HashMap<String, String>();
     static final UserService userService = new UserService();
+    static Javalin app;
 
     public static void main(String[] args) {
         userService.init();
-        Javalin app = Javalin.create(config -> {
+        app = Javalin.create(config -> {
             config.enableDevLogging();
         }).start("localhost", 7000);
 
@@ -209,5 +210,9 @@ public class AuthenticationServer {
         random.nextBytes(bytes);
         Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
         return encoder.encodeToString(bytes);
+    }
+
+    public static void shoutDown() {
+        app.stop();
     }
 }
